@@ -94,3 +94,4 @@ if __name__ == "__main__":
         updated_data = row
         output_filename = f'{output_filename_base}_{idx + 1}.in'
         change_input(default_file_path, output_filename, updated_data, components[idx, :])
+
