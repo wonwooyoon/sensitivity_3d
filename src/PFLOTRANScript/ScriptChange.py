@@ -53,7 +53,7 @@ def change_input(default_filename, output_filename, updated_data, components):
 
     if granite_mineral_target is not None:
 
-        lines[granite_mineral_target] = f'    Pyrite		{0.0 * updated_data[3]}	1e2 	m^2/m^3\n'
+        lines[granite_mineral_target] = f'    Pyrite		{0.0 * updated_data[3]}	0.05 	m^2/g\n'
 
     if mixing_ratio_target is not None:
 
