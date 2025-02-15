@@ -1,2 +1,5 @@
 .venv_sensitivity_3d/
 *.out
+*.xmf
+*.pft
+sample_*.h5

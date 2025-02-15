@@ -25,7 +25,7 @@ def change_input(default_filename, output_filename, updated_data, components):
             bentonite_mineral_target = i + 17
         if 'CONSTRAINT granite_conc' in line:
             granite_mineral_target = i + 21
-        if 'LIQUID_PRESSURE 561325.d0' in line:
+        if 'LIQUID_PRESSURE target' in line:
             pressure_grad_target = i
         if 'CONSTRAINT seawater_conc' in line:
             mixing_ratio_target = i + 2
