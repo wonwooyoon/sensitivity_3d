@@ -521,7 +521,7 @@ CONSTRAINT granite_conc
     Quartz		0.10673	0.05 	m^2/g
     Gypsum		0.0	0.05 	m^2/g
     Pyrite		0.0	0.05 	m^2/g
-    Calcite		0.0.2284	0.7 	m^2/g
+    Calcite		0.2284	0.7 	m^2/g
     Dolomite		0.0	0.09 	m^2/g
     Siderite		0.0	2.7 	m^2/g
     Uraninite		0.0	0.05 	m^2/g
