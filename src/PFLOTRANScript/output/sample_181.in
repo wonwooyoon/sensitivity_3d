@@ -517,11 +517,11 @@ CONSTRAINT granite_conc
   /
   MINERALS
     Smectite_MX80 	0.0	1e2 	m^2/m^3
-    InertMineral 0.11622 0.0 m^2/m^3
-    Quartz		0.0266825	0.05 	m^2/g
+    InertMineral 0.46488 0.0 m^2/m^3
+    Quartz		0.10673	0.05 	m^2/g
     Gypsum		0.0	0.05 	m^2/g
     Pyrite		0.0	0.05 	m^2/g
-    Calcite		0.0571	0.7 	m^2/g
+    Calcite		0.0.2284	0.7 	m^2/g
     Dolomite		0.0	0.09 	m^2/g
     Siderite		0.0	2.7 	m^2/g
     Uraninite		0.0	0.05 	m^2/g
