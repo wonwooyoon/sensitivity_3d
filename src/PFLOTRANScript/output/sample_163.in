@@ -149,9 +149,8 @@ CHEMISTRY
     /
     
     Quartz
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 50.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT		  -13.99
 	      ACTIVATION_ENERGY	87.6d3
@@ -159,9 +158,8 @@ CHEMISTRY
     /
     
     Gypsum
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 50.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT 		-2.79d0
 	      ACTIVATION_ENERGY 	0.00
@@ -169,16 +167,12 @@ CHEMISTRY
     /   
     
     Calcite
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 700.0
-      NUCLEATION_KINETICS simplified_eq
       RATE_CONSTANT 1e-9
     /
     
     Pyrite
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 50.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT     -7.52
         ACTIVATION_ENERGY 56.9d3
@@ -199,9 +193,8 @@ CHEMISTRY
     /
         
     Dolomite
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 90.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT		-3.553
 	      ACTIVATION_ENERGY	46d3
@@ -216,9 +209,8 @@ CHEMISTRY
     /
         
     Siderite
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 2700.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT		-5.23
 	      ACTIVATION_ENERGY	56.0d3
@@ -233,21 +225,13 @@ CHEMISTRY
     /
        
     Uraninite
-      SURFACE_AREA_FUNCTION MINERAL_MASS
-      SPECIFIC_SURFACE_AREA 50.0
-      NUCLEATION_KINETICS simplified_eq
+      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
+      SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
         RATE_CONSTANT		-7.98
 	      ACTIVATION_ENERGY	32d3
       /
     /     
-  /
-
-  NUCLEATION_KINETICS
-    SIMPLIFIED simplified_eq
-      RATE_CONSTANT 1.0
-      GAMMA 1.d10
-    /
   /
   
   SORPTION
@@ -517,14 +501,14 @@ CONSTRAINT granite_conc
   /
   MINERALS
     Smectite_MX80 	0.0	1e2 	m^2/m^3
-    InertMineral 0.46488 0.0 m^2/m^3
+    InertMineral 0.46487 0.0 m^2/m^3
     Quartz		0.10673	0.05 	m^2/g
-    Gypsum		0.0	0.05 	m^2/g
+    Gypsum		0.0	1e2 	m^2/m^3
     Pyrite		0.0	0.05 	m^2/g
     Calcite		0.2284	0.7 	m^2/g
-    Dolomite		0.0	0.09 	m^2/g
-    Siderite		0.0	2.7 	m^2/g
-    Uraninite		0.0	0.05 	m^2/g
+    Dolomite		0.0	1e2 	m^2/m^3
+    Siderite		0.0	1e2 	m^2/m^3
+    Uraninite		0.0	1e2 	m^2/m^3
   /
 /
   
@@ -550,10 +534,10 @@ CONSTRAINT bentonite_conc
     Quartz		0.023761073276509087	0.05 	m^2/g
     Gypsum		0.003807614611112727	0.05 	m^2/g
     Pyrite		1.9064967961213552e-05	0.05 	m^2/g
-    Calcite		0.0	0.7 	m^2/g
-    Dolomite		0.0	0.09 	m^2/g
-    Siderite		0.0	2.7 	m^2/g
-    Uraninite		0.0	0.05 	m^2/g
+    Calcite		0.0	1e2 	m^2/m^3
+    Dolomite		0.0	1e2 	m^2/m^3
+    Siderite		0.0	1e2 	m^2/m^3
+    Uraninite		0.0	1e2 	m^2/m^3
   /
 /	
 
@@ -576,12 +560,12 @@ CONSTRAINT source_conc
   MINERALS
     Smectite_MX80 	0.0	0.0 	m^2/m^3
     InertMineral 0.94 0.0 m^2/m^3
-    Quartz		0.0	0.05    m^2/g	
-    Gypsum		0.0	0.05    m^2/g
-    Pyrite		0.0	0.05    m^2/g
-    Calcite		0.0	0.7     m^2/g
-    Dolomite		0.0	0.09  m^2/g
-    Siderite		0.0 2.7   m^2/g
+    Quartz		0.0	0.0 	m^2/m^3	
+    Gypsum		0.0	0.0 	m^2/m^3
+    Pyrite		0.0	0.0 	m^2/m^3
+    Calcite		0.0	0.0 	m^2/m^3
+    Dolomite		0.0	0.0 	m^2/m^3
+    Siderite		0.0	0.0 	m^2/m^3
     Uraninite		0.05 0.05 m^2/g
   /
 /
