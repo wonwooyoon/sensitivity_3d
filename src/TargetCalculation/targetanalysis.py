@@ -38,8 +38,8 @@ class TargetValueAnalysis:
         material_2 = self.data[self.data['Material ID'] == 2]
         material_3 = self.data[self.data['Material ID'] == 3]
         
-        self.mineral_bent = (material_2['Uraninite VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93559).sum()
-        self.mineral_sour = (material_3['Uraninite VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93559).sum()
+        self.mineral_bent = (material_2['Uranf VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93559).sum()
+        self.mineral_sour = (material_3['Uranf VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93559).sum()
 
     def calculate_aq_speciation(self):
         material_1 = self.data[self.data['Material ID'] == 1]
