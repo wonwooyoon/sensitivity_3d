@@ -133,7 +133,7 @@ CHEMISTRY
     Calcite
     Dolomite
     Siderite
-    Uraninite
+    Uranf
   /
 
   ! Kinetics data from Palandri and Kharaka (2004) and Marty et al. (2015)
@@ -224,7 +224,7 @@ CHEMISTRY
       /
     /
        
-    Uraninite
+    Uranf
       SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
       SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
@@ -299,7 +299,6 @@ CHEMISTRY
     PE
     KD
     TOTAL
-    MINERAL_SATURATION_INDEX
     SECONDARY_SPECIES
     TOTAL_SORBED
     MOLARITY
@@ -357,10 +356,6 @@ OBSERVATION
   VELOCITY
 END
 
-OBSERVATION
-  REGION BU
-END
-
 OUTPUT
   VELOCITY_AT_CENTER
   SNAPSHOT_FILE
@@ -412,10 +407,6 @@ END
 
 REGION granite_fracture
   FILE material_1.txt
-END
-
-REGION BU
-  COORDINATE -6.75 -1.25 0.00
 END
 
 FLOW_CONDITION initial_pressure
@@ -517,7 +508,7 @@ CONSTRAINT granite_conc
     Calcite		0.2284	0.7 	m^2/g
     Dolomite		0.0	1e2 	m^2/m^3
     Siderite		0.0	1e2 	m^2/m^3
-    Uraninite		0.0	1e2 	m^2/m^3
+    Uranf		0.0	1e2 	m^2/m^3
   /
 /
   
@@ -546,7 +537,7 @@ CONSTRAINT bentonite_conc
     Calcite		0.0	1e2 	m^2/m^3
     Dolomite		0.0	1e2 	m^2/m^3
     Siderite		0.0	1e2 	m^2/m^3
-    Uraninite		0.0	1e2 	m^2/m^3
+    Uranf		0.0	1e2 	m^2/m^3
   /
 /	
 
@@ -575,7 +566,7 @@ CONSTRAINT source_conc
     Calcite		0.0	0.0 	m^2/m^3
     Dolomite		0.0	0.0 	m^2/m^3
     Siderite		0.0	0.0 	m^2/m^3
-    Uraninite		0.05 0.05 m^2/g
+    Uranf		0.05 0.05 m^2/g
   /
 /
 
