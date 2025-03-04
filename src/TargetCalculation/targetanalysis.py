@@ -33,6 +33,57 @@ class TargetValueAnalysis:
     def calculate_adsorbed(self):
         material_2 = self.data[self.data['Material ID'] == 2]
         self.adsorbed = (material_2['Total Sorbed UO2++ [mol_m^3]'] * material_2['Volume [m^3]']).sum()
+
+    def calculate_mineral(self):
+        material_2 = self.data[self.data['Material ID'] == 2]
+        material_3 = self.data[self.data['Material ID'] == 3]
+        
+        self.mineral_bent = (material_2['Uraninite VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93559).sum()
+        self.mineral_sour = (material_3['Uraninite VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93559).sum()
+
+    def calculate_aq_speciation(self):
+        material_1 = self.data[self.data['Material ID'] == 1]
+        material_2 = self.data[self.data['Material ID'] == 2]
+        
+        self.m1_a1 = (material_1['Ca2UO2(CO3)3 [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.m1_a2 = (material_1['CaUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.m1_a3 = (material_1['UO2(CO3)3---- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.m1_a4 = (material_1['MgUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.m1_a5 = (material_1['UO2(CO3)2-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+
+        self.m2_a1 = (material_2['Ca2UO2(CO3)3 [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.m2_a2 = (material_2['CaUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.m2_a3 = (material_2['UO2(CO3)3---- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.m2_a4 = (material_2['MgUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.m2_a5 = (material_2['UO2(CO3)2-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+
+
+    def calculate_ad_speciation(self):
+        material_2 = self.data[self.data['Material ID'] == 2]
+        self.m2_s1 = (material_2['>SOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_s2 = (material_2['>SOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_s3 = (material_2['>SOUO2(OH)2- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_s4 = (material_2['>SOUO2(OH)3-- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_s5 = (material_2['>SOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_s6 = (material_2['>SOUO2(CO3)2--- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_w1 = (material_2['>WOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_w2 = (material_2['>WOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        self.m2_w3 = (material_2['>WOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+
+    def calculate_components(self):
+        material_2 = self.data[self.data['Material ID'] == 2]
+        self.calcium = (material_2['Total Ca++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.carbonate = (material_2['Total CO3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.mat2_vol = (material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.calcium_conc = self.calcium / self.mat2_vol
+        self.carbonate_conc = self.carbonate / self.mat2_vol
+
+        material_1 = self.data[self.data['Material ID'] == 1]
+        self.calcium_frac = (material_1['Total Ca++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.carbonate_frac = (material_1['Total CO3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.mat1_vol = (material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.calcium_frac_conc = self.calcium_frac / self.mat1_vol
+        self.carbonate_frac_conc = self.carbonate_frac / self.mat1_vol 
     
     def calculate_efflux_aux(self, efflux_path):
         with open(efflux_path, 'r') as f:
@@ -50,7 +101,7 @@ class TargetValueAnalysis:
                 line_data = line.split()
                 efflux_total_uo2 = [float(line_data[i]) for i in efflux_total_uo2_index]
                 efflux_qlx = [float(line_data[i]) for i in efflux_qlx_index]
-                efflux = [efflux_total_uo2[i] * efflux_qlx[i] for i in range(len(efflux_total_uo2))]
+                efflux = [5e-3 * efflux_total_uo2[i] * efflux_qlx[i] for i in range(len(efflux_total_uo2))]
                 efflux_sum = sum(efflux)            
                 result.append(efflux_sum+result[-1])
             return result 
@@ -72,7 +123,40 @@ class TargetValueAnalysis:
         self.efflux_seq_df.to_csv(efflux_csv_path, index=False)
             
     def save_target_values(self):
-        target_values = pd.DataFrame({'Aqueous UO2++ in Granite': [self.aqueous_granite], 'Aqueous UO2++ in Bentonite': [self.aqueous_bentonite], 'Adsorbed UO2++ in Bentonite': [self.adsorbed]})
+        target_values = pd.DataFrame({'Aqueous UO2++ in Granite': [self.aqueous_granite], 
+                                      'Aqueous UO2++ in Bentonite': [self.aqueous_bentonite], 
+                                      'Adsorbed UO2++ in Bentonite': [self.adsorbed], 
+                                      'Mineralized UO2++ in Bentonite': [self.mineral_bent], 
+                                      'Mineralized UO2++ in Source': [self.mineral_sour], 
+                                      'm1_a1': [self.m1_a1], 
+                                      'm1_a2': [self.m1_a2],
+                                      'm1_a3': [self.m1_a3],
+                                      'm1_a4': [self.m1_a4],
+                                      'm1_a5': [self.m1_a5],
+                                      'm2_a1': [self.m2_a1],
+                                      'm2_a2': [self.m2_a2],
+                                      'm2_a3': [self.m2_a3],
+                                      'm2_a4': [self.m2_a4],
+                                      'm2_a5': [self.m2_a5],
+                                      'm2_s1': [self.m2_s1],
+                                      'm2_s2': [self.m2_s2],
+                                      'm2_s3': [self.m2_s3],
+                                      'm2_s4': [self.m2_s4],
+                                      'm2_s5': [self.m2_s5],
+                                      'm2_s6': [self.m2_s6],
+                                      'm2_w1': [self.m2_w1],
+                                      'm2_w2': [self.m2_w2],
+                                      'm2_w3': [self.m2_w3],
+                                      'Calcium': [self.calcium],
+                                      'Carbonate': [self.carbonate],
+                                      'Calcium_frac': [self.calcium_frac],
+                                      'Carbonate_frac': [self.carbonate_frac],
+                                      'Calcium_conc': [self.calcium_conc],
+                                      'Carbonate_conc': [self.carbonate_conc],
+                                      'Calcium_frac_conc': [self.calcium_frac_conc],
+                                      'Carbonate_frac_conc': [self.carbonate_frac_conc],
+                                      })
+        
         if not hasattr(self, 'target_values'):
             self.target_values = target_values
         else:
@@ -85,15 +169,15 @@ class TargetValueAnalysis:
     
 if __name__ == '__main__':
 
-    for j in range(1, 301):
+    for j in [5, 300]:
         if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_10000.0.csv'):
-            if not os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
+            if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
             
                 tva = TargetValueAnalysis()
                 
                 target_csv_path = f'./src/TargetCalculation/output/sample_{j}/target_values.csv'
-                efflux_path = f'./src/RunPFLOTRAN/output_export/sample_{j}/sample_{j}-obs-'
-                efflux_csv_path = f'./src/TargeCalculation/output/sample_{j}/efflux.csv'
+                efflux_path = f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{j}/sample_{j}-obs-'
+                efflux_csv_path = f'./src/TargetCalculation/output/sample_{j}/efflux.csv'
 
                 tva.calculate_efflux(efflux_path, efflux_csv_path)
                 print(f'Efflux calculated for sample {j}')
@@ -107,6 +191,10 @@ if __name__ == '__main__':
                         continue
                     tva.calculate_aqueous()
                     tva.calculate_adsorbed()
+                    tva.calculate_mineral()
+                    # tva.calculate_aq_speciation()
+                    # tva.calculate_ad_speciation()
+                    # tva.calculate_components()
                     tva.save_target_values()
     
                 tva.save_csv(target_csv_path)

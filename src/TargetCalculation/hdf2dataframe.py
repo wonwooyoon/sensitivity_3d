@@ -45,15 +45,15 @@ def read_hdf5_file(input_path, output_path):
         df['XC'] = xc
         df['YC'] = yc
         df['ZC'] = zc
-
+        
         for key in f.keys():
             if 'Time' in key and key.endswith(' y'):
                 time_value = float(key.split()[2])
                 time_data = f[key]
-                for subkey in time_data:
-                    df[subkey] = time_data[subkey][()]
+                data_dict = {subkey: time_data[subkey][()] for subkey in time_data}
+                data_dict.update({'XC': xc, 'YC': yc, 'ZC': zc})
+                df = pd.DataFrame(data_dict)
                 df.to_csv(f"{output_path}_time_{time_value}.csv", index=False)
-           
 
 if __name__ == '__main__':
 
@@ -61,11 +61,11 @@ if __name__ == '__main__':
     # # read every sample file in ./src/RunPFLOTRAN/output/sample_*/sample_*.h5
     for i in range(1, 301):
         
-        if os.path.exists(f'./src/RunPFLOTRAN/output_export/sample_{i}'):
+        if os.path.exists(f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{i}'):
             if not os.path.exists(f'./src/TargetCalculation/output/sample_{i}'):
                 print(f'Reading sample_{i}\n')
                 os.makedirs(f'./src/TargetCalculation/output/sample_{i}', exist_ok=True)
-                read_hdf5_file(f'./src/RunPFLOTRAN/output_export/sample_{i}/sample_{i}.h5', f'./src/TargetValueAnalysis/output/sample_{i}/sample_{i}')
+                read_hdf5_file(f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{i}/sample_{i}.h5', f'./src/TargetCalculation/output/sample_{i}/sample_{i}')
 ###########################################################################################
 
 
