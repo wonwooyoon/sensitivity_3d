@@ -3,3 +3,5 @@
 *.xmf
 *.pft
 sample_*.h5
+mixing_*.h5
+mixing_*.out

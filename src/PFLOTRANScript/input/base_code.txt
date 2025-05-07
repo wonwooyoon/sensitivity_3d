@@ -564,7 +564,7 @@ CONSTRAINT source_conc
     SO4--	0.04290611	T
     H4(SiO4)	0.0002337517	T
     Al+++	1e-16			T
-    UO2++	1e-16			T
+    UO2++	1e-16			M UO2:2H2O(am)
     O2(aq)	-2.798147		PE
   /
   MINERALS

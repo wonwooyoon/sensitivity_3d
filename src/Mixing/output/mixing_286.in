@@ -103,7 +103,7 @@ CHEMISTRY
     Calcite
     Dolomite
     Siderite
-    Uraninite
+    UO2:2H2O(am)
   /
 
   ! Kinetics data from Palandri and Kharaka (2004) and Marty et al. (2015)
@@ -134,7 +134,7 @@ CHEMISTRY
     Siderite
       RATE_CONSTANT		1.d-6 mol/m^2-sec
     /
-    Uraninite
+    UO2:2H2O(am)
       RATE_CONSTANT		1.d-6 mol/m^2-sec
     /
   /
@@ -167,12 +167,12 @@ END
 
 MATERIAL_PROPERTY granite_fracture
   ID 1
-POROSITY 0.8806392471779146
+POROSITY 0.711011510954477
 END
 
 MATERIAL_PROPERTY seawater
   ID 2
-POROSITY 0.11936075282208537
+POROSITY 0.28898848904552304
 END
 
 OUTPUT
@@ -259,7 +259,7 @@ CONSTRAINT granite_fracture_conc
     Calcite		      0.2                     1e3 	m^2/m^3
     Dolomite	     	0.0	                    1e3 	m^2/m^3
     Siderite	    	0.0	                    1e3 	m^2/m^3
-    Uraninite		    0.0	                    1e3 	m^2/m^3
+    UO2:2H2O(am)		    0.0	                    1e3 	m^2/m^3
   /
 /	
 
@@ -288,7 +288,7 @@ CONSTRAINT seawater_conc
     Calcite		      0.2                     1e3 	m^2/m^3
     Dolomite	     	0.0	                    1e3 	m^2/m^3
     Siderite	    	0.0	                    1e3 	m^2/m^3
-    Uraninite		    0.0	                    1e3 	m^2/m^3
+    UO2:2H2O(am)		    0.0	                    1e3 	m^2/m^3
   /
 /	
   

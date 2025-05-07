@@ -81,7 +81,11 @@ echo "All simulations completed and results moved to ./src/Mixing/output/"
         for i in range(file_num):
         
             with h5py.File(f'{self.ratio_result_dir}/mixing_{i+1}.h5', 'r') as file:
-            
+                
+                if 'Time:  5.00000E+02 y/' not in file:
+                    print(f"Warning: 'Time:  5.00000E+02 y/' not found in file {i+1}.h5")
+                    continue
+                
                 group = file['Time:  5.00000E+02 y/']
                 self.keys = list(group.keys())
                 for key in self.keys:
@@ -112,6 +116,6 @@ if __name__ == '__main__':
 
     ratio_calculation.read_ratio()
     ratio_calculation.write_script()
-    #ratio_calculation.run_pflotran_ratio()
+    # ratio_calculation.run_pflotran_ratio()
     ratio_calculation.read_pflotran_result(components)
 
