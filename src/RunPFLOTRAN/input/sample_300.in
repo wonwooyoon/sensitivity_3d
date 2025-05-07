@@ -174,7 +174,8 @@ CHEMISTRY
       SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
       SURFACE_AREA_VOL_FRAC_POWER 0.66667
       PREFACTOR
-        RATE_CONSTANT     -7.52
+        DISSOLUTION_RATE_CONSTANT     -7.52
+        PRECIPITATION_RATE_CONSTANT    0.00
         ACTIVATION_ENERGY 56.9d3
         PREFACTOR_SPECIES H+
           ALPHA           -0.5
@@ -184,10 +185,18 @@ CHEMISTRY
         /
       /
       PREFACTOR
-        RATE_CONSTANT     -4.55
+        DISSOLUTION_RATE_CONSTANT     -4.55
+        PRECIPITATION_RATE_CONSTANT   0.00
         ACTIVATION_ENERGY 56.9d3
         PREFACTOR_SPECIES O2(aq)
           ALPHA           0.5
+        /
+      /
+      PREFACTOR
+        DISSOLUTION_RATE_CONSTANT     0.00
+        PRECIPITATION_RATE_CONSTANT   -9.00
+        PREFACTOR_SPECIES H+
+          ALPHA 0.00
         /
       /
     /
@@ -225,13 +234,8 @@ CHEMISTRY
     /
        
     UO2:2H2O(am)
-      SURFACE_AREA_FUNCTION VOLUME_FRACTION_RATIO
-      SURFACE_AREA_VOL_FRAC_POWER 0.66667
-      PREFACTOR
-        RATE_CONSTANT		-7.98
-	      ACTIVATION_ENERGY	32d3
-      /
-    /     
+      RATE_CONSTANT 1e-9
+    / 
   /
   
   SORPTION
@@ -352,8 +356,7 @@ CHARACTERISTIC_CURVES default
 END
 
 OBSERVATION
-  REGION east
-  VELOCITY
+  REGION bentonite_obsv
 END
 
 OUTPUT
@@ -375,6 +378,9 @@ OUTPUT
       POROSITY
       VOLUME
     /
+  /
+  MASS_BALANCE_FILE
+    PERIODIC TIME 1 yr
   /
 END
 
@@ -407,6 +413,10 @@ END
 
 REGION granite_fracture
   FILE material_1.txt
+END
+
+REGION bentonite_obsv
+  COORDINATE -6.75 -1.0 0.0
 END
 
 FLOW_CONDITION initial_pressure

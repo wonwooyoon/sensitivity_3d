@@ -29,6 +29,9 @@ class TargetValueAnalysis:
         
         material_2 = self.data[self.data['Material ID'] == 2]
         self.aqueous_bentonite = (material_2['Total UO2++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+
+        material_3 = self.data[self.data['Material ID'] == 3]
+        self.aqueous_source = (material_3['Total UO2++ [M]'] * material_3['Volume [m^3]'] * material_3['Porosity']).sum()
     
     def calculate_adsorbed(self):
         material_2 = self.data[self.data['Material ID'] == 2]
@@ -38,8 +41,8 @@ class TargetValueAnalysis:
         material_2 = self.data[self.data['Material ID'] == 2]
         material_3 = self.data[self.data['Material ID'] == 3]
         
-        self.mineral_bent = (material_2['Uranf VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93559).sum()
-        self.mineral_sour = (material_3['Uranf VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93559).sum()
+        self.mineral_bent = (material_2['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93558).sum()
+        self.mineral_sour = (material_3['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93558).sum()
 
     def calculate_aq_speciation(self):
         material_1 = self.data[self.data['Material ID'] == 1]
@@ -125,6 +128,7 @@ class TargetValueAnalysis:
     def save_target_values(self):
         target_values = pd.DataFrame({'Aqueous UO2++ in Granite': [self.aqueous_granite], 
                                       'Aqueous UO2++ in Bentonite': [self.aqueous_bentonite], 
+                                      'Aqueous UO2++ in Source': [self.aqueous_source],
                                       'Adsorbed UO2++ in Bentonite': [self.adsorbed], 
                                       'Mineralized UO2++ in Bentonite': [self.mineral_bent], 
                                       'Mineralized UO2++ in Source': [self.mineral_sour], 
@@ -169,18 +173,18 @@ class TargetValueAnalysis:
     
 if __name__ == '__main__':
 
-    for j in [5, 300]:
-        if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_10000.0.csv'):
-            if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
+    for j in range(1, 301):
+        if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_2400.0.csv'):
+            if not os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
             
                 tva = TargetValueAnalysis()
                 
                 target_csv_path = f'./src/TargetCalculation/output/sample_{j}/target_values.csv'
-                efflux_path = f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{j}/sample_{j}-obs-'
-                efflux_csv_path = f'./src/TargetCalculation/output/sample_{j}/efflux.csv'
+                #efflux_path = f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{j}/sample_{j}-obs-'
+                #efflux_csv_path = f'./src/TargetCalculation/output/sample_{j}/efflux.csv'
 
-                tva.calculate_efflux(efflux_path, efflux_csv_path)
-                print(f'Efflux calculated for sample {j}')
+                #tva.calculate_efflux(efflux_path, efflux_csv_path)
+                #print(f'Efflux calculated for sample {j}')
         
                 for i in range(0, 101):
     
@@ -192,204 +196,75 @@ if __name__ == '__main__':
                     tva.calculate_aqueous()
                     tva.calculate_adsorbed()
                     tva.calculate_mineral()
-                    # tva.calculate_aq_speciation()
-                    # tva.calculate_ad_speciation()
-                    # tva.calculate_components()
+                    tva.calculate_aq_speciation()
+                    tva.calculate_ad_speciation()
+                    tva.calculate_components()
                     tva.save_target_values()
     
                 tva.save_csv(target_csv_path)
     
     num = 0    
     target_df = pd.DataFrame()
+    efflux_df = pd.DataFrame()
     input_csv_path = f'./src/Sampling/output/lhs_sampled_data.csv'
     input_csv = pd.read_csv(input_csv_path, names=['x1', 'x2', 'x3', 'x4', 'x5'], header=None)
 
     # plot x1, x2, and x3
+
     for k in range(3):
 
-        for j in range(1, 301):
-
+        merged_df = pd.DataFrame()
+        
+        for j in range(301):
+            
             target_csv_path = f'./src/TargetCalculation/output/sample_{j+1}/target_values.csv'
-    
+
             if os.path.exists(target_csv_path):
+                
                 df = pd.read_csv(target_csv_path)
-                        
-                if j == 197:
-                    plt.plot(df.index * 100, df.iloc[:, k], label=f'Sample {j+1}', color='red', zorder=10)
-                else:
-                    plt.plot(df.index * 100, df.iloc[:, k], label=f'Sample {j+1}', color=(0.86, 0.86, 1.0), linewidth=0.5)
-                
-                num += 1
-                
+
                 if k == 0:
-                    df_last_row = df.iloc[-1, :].to_frame().T
+                    df_last_row = df.iloc[-1, :2].to_frame().T
                     df_last_row.index = [j]
                     input_row = input_csv.iloc[j, :].to_frame().T
                     input_row.index = [j]
-                    df_last_row = pd.concat([input_csv.iloc[j, :].to_frame().T, df_last_row], axis=1)
+                    df_last_row = pd.concat([input_row, df_last_row], axis=1)
                     target_df = pd.concat([target_df, df_last_row], axis=0)
 
-        print(f'Case loaded: {num}')
-        num = 0
-    
-        plt.xlabel('Time [yr]', fontfamily='Arial', fontweight='bold', fontsize=25)
-        
-        if k == 0:
-            plt.ylabel(f'U$_{{frac}}$ [mol]', fontfamily='Arial', fontweight='bold', fontsize=22)
-            plt.ylim(0, 5e-3)
-            plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(1e-3))
-        elif k == 1:
-            plt.ylabel(f'U$_{{bent}}$ [mol]', fontfamily='Arial', fontweight='bold', fontsize=22)
-            plt.ylim(0, 1.2e-4)
-            plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(3e-5))
-        elif k == 2:
-            plt.ylabel(f'U$_{{sorb}}$ [mol]', fontfamily='Arial', fontweight='bold', fontsize=22)
-            plt.ylim(0, 10)
-            plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(2))
+                # Merge the k-th column into the merged_df
+                merged_column = df.iloc[:, k].to_frame()
+                merged_column.columns = [f'Sample_{j+1}_Col_{k}']
+                merged_df = pd.concat([merged_df, merged_column], axis=1)
 
-        plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x:,.0f}'))
-        plt.xticks(fontfamily='Arial', fontweight='bold', fontsize=20)
-        plt.yticks(fontfamily='Arial', fontweight='bold', fontsize=20)
-
-        plt.gca().spines['top'].set_linewidth(2)
-        plt.gca().spines['right'].set_linewidth(2)
-        plt.gca().spines['bottom'].set_linewidth(2)
-        plt.gca().spines['left'].set_linewidth(2)
-        plt.gca().tick_params(axis='both', which='major', width=2, length=6, direction='in')
-
-        plt.gca().set_axisbelow(False)
-        
-        formatter = ticker.ScalarFormatter(useMathText=False)
-        formatter.set_scientific(True)
-        formatter.set_powerlimits((-1, 1))    
-        formatter.format = lambda x, pos: f'{x:.1f}'
-        plt.gca().yaxis.set_major_formatter(formatter)
-        plt.gca().yaxis.get_offset_text().set_fontsize(18)
-        plt.gca().yaxis.get_offset_text().set_fontfamily('Arial')
-        plt.gca().yaxis.get_offset_text().set_fontweight('bold')
-        
-        plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(2500))
-        plt.xlim(0, 10000)    
-        
-        plt.gcf().set_size_inches(6, 6)
-        plt.gcf().set_dpi(1200)
-        plt.savefig(f'./src/TargetCalculation/output/target_value_{k+1}.png')
-        plt.close()
-
-    efflux_df = pd.DataFrame()
+        # Save the merged dataframe to a CSV file
+        merged_df.to_csv(f'./src/TargetCalculation/output/merged_target_values_{k+1}.csv', index=False)
 
     # plot x4
     
-    for j in range(420):
+    # merged_df = pd.DataFrame()
 
-        efflux_csv_path = f'/home/geofluids/research/sensitivity/src/TargetCalculation/output/sample_{j+1}/efflux.csv'
+    # for j in range(301):
 
-        if os.path.exists(efflux_csv_path):
-            df = pd.read_csv(efflux_csv_path)
-                
-            if j == 197:
-                plt.plot(df.index, df.iloc[:, 0], label=f'Sample {j+1}', color='red', zorder=10)
-            else:
-                plt.plot(df.index, df.iloc[:, 0], label=f'Sample {j+1}', color=(0.86, 0.86, 1.0))
-                
-            num += 1
+    #     efflux_csv_path = f'/home/geofluids/research/sensitivity_3d/src/TargetCalculation/output/sample_{j+1}/efflux.csv'
 
-            df_last_row = df.iloc[-1, :].to_frame().T
-            df_last_row.index = [j]
-            efflux_df = pd.concat([efflux_df, df_last_row], axis=0)
+    #     if os.path.exists(efflux_csv_path):
+            
+    #         df = pd.read_csv(efflux_csv_path)
+    #         df_last_row = df.iloc[-1, :].to_frame().T
+    #         df_last_row.index = [j]
+    #         efflux_df = pd.concat([efflux_df, df_last_row], axis=0)
+    #         num += 1
 
-    target_df = pd.concat([target_df, efflux_df], axis=1)
+    #         merged_column = df.iloc[:, 0].to_frame()
+    #         merged_column.columns = [f'Sample_{j+1}_Col_3']
+    #         merged_df = pd.concat([merged_df, merged_column], axis=1)
 
-    print(f'Case loaded: {num}')
+    # target_df = pd.concat([target_df, efflux_df], axis=1)
 
-    plt.xlabel('Time [yr]', fontfamily='Arial', fontweight='bold', fontsize=25)
-    plt.ylabel(f'U$_{{out}}$ [mol]', fontfamily='Arial', fontweight='bold', fontsize=22)
-    plt.ylim(0, 3e-2)
-    plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(1e-2))
-    plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x:,.0f}'))
-    plt.xticks(fontfamily='Arial', fontweight='bold', fontsize=20)
-    plt.yticks(fontfamily='Arial', fontweight='bold', fontsize=20)
+    # print(f'Case loaded: {num}')
 
-    plt.gca().spines['top'].set_linewidth(2)
-    plt.gca().spines['right'].set_linewidth(2)
-    plt.gca().spines['bottom'].set_linewidth(2)
-    plt.gca().spines['left'].set_linewidth(2)
-    plt.gca().tick_params(axis='both', which='major', width=2, length=6, direction='in')
+    # merged_df.to_csv(f'./src/TargetCalculation/output/merged_target_values_4.csv', index=False)
 
-    plt.gca().set_axisbelow(False)
-
-    formatter = ticker.ScalarFormatter(useMathText=True)
-    formatter.set_scientific(True)
-    formatter.set_powerlimits((-1, 1))
-    formatter.format = lambda x, pos: f'{x:.1f}'
-    plt.gca().yaxis.set_major_formatter(formatter)
-    plt.gca().yaxis.get_offset_text().set_fontsize(18)
-    plt.gca().yaxis.get_offset_text().set_fontfamily('Arial')
-    plt.gca().yaxis.get_offset_text().set_fontweight('bold')
-
-    plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(2500))
-    plt.xlim(0, 10000)
-
-    plt.gcf().set_size_inches(6, 6)
-    plt.gcf().set_dpi(1200)
-
-    plt.savefig('./src/TargetCalculation/output/target_value_4.png')
-    plt.close()
-
-    # make input-output pairs
-    target_df.to_csv('./src/TargetCalculation/output/inout.csv', index=False)
-
-    # plot pdf
-    target_path = './src/TargetCalculation/output/inout.csv'
-
-    # Read data from the csv file
-    df = pd.read_csv(target_path)
-    df = df.iloc[:, -4:]
-
-    # Normalize the data by dividing by the maximum value of each column
-    for i in range(4):
-        df.iloc[:, i] = df.iloc[:, i] / df.iloc[:, i].max()
-
-    # Create a figure and a set of subplots
-    fig, axs = plt.subplots(4, 1, figsize=(5, 20), constrained_layout=True)
-
-    # Set the x-axis label of each subplot
-    axs[3].set_xlabel('Probability Density', fontfamily='Arial', fontweight='bold', fontsize=25)
-
-    # Set the y-axis label of each subplot
-    axs[0].set_ylabel('y$_{1}$/y$_{1,max}$', fontfamily='Arial', fontweight='bold', fontsize=22)
-    axs[1].set_ylabel('y$_{2}$/y$_{2,max}$', fontfamily='Arial', fontweight='bold', fontsize=22)
-    axs[2].set_ylabel('y$_{3}$/y$_{3,max}$', fontfamily='Arial', fontweight='bold', fontsize=22)
-    axs[3].set_ylabel('y$_{4}$/y$_{4,max}$', fontfamily='Arial', fontweight='bold', fontsize=22)
-    
-    # Plot the pdf of the target values, do not draw a histogram but only the pdf
-    axs[0].hist(df.iloc[:, 0], bins=10, edgecolor='black', color='grey', density=True, orientation='horizontal')
-    axs[1].hist(df.iloc[:, 1], bins=10, edgecolor='black', color='grey', density=True, orientation='horizontal')
-    axs[2].hist(df.iloc[:, 2], bins=10, edgecolor='black', color='grey', density=True, orientation='horizontal')
-    axs[3].hist(df.iloc[:, 3], bins=10, edgecolor='black', color='grey', density=True, orientation='horizontal')
-        
-    for ax in axs:
-        ax.tick_params(axis='x', which='major', width=2, length=6, direction='in', labelsize=20)
-        ax.tick_params(axis='y', which='major', width=2, length=6, direction='in', labelsize=20)
-        for label in ax.get_xticklabels():
-            label.set_fontsize(20)
-            label.set_fontfamily('Arial')
-            label.set_fontweight('bold')
-        for label in ax.get_yticklabels():
-            label.set_fontsize(20)
-            label.set_fontfamily('Arial')
-            label.set_fontweight('bold')
-        ax.set_xlim(0, 8)
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x:.1f}'))
-        ax.spines['top'].set_linewidth(2)
-        ax.spines['right'].set_linewidth(2)
-        ax.spines['bottom'].set_linewidth(2)
-        ax.spines['left'].set_linewidth(2)
-        ax.set_axisbelow(False)
-
-    #plt.tight_layout()
-    plt.gcf().set_dpi(1200)
-    plt.savefig(target_path.replace('.csv', '_pdf.png'))
-    plt.close()
+    # # make input-output pairs
+    # target_df.to_csv('./src/TargetCalculation/output/inout.csv', index=False)
 
