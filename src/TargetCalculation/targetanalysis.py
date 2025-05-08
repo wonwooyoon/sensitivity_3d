@@ -2,6 +2,7 @@ import pandas as pd
 import glob
 import os
 from matplotlib import font_manager
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
@@ -25,13 +26,13 @@ class TargetValueAnalysis:
 
     def calculate_aqueous(self):
         material_1 = self.data[self.data['Material ID'] == 1]
-        self.aqueous_granite = (material_1['Total UO2++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.aqueous_granite = (1000 * material_1['Total UO2++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
         
         material_2 = self.data[self.data['Material ID'] == 2]
-        self.aqueous_bentonite = (material_2['Total UO2++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        self.aqueous_bentonite = (1000 * material_2['Total UO2++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
 
         material_3 = self.data[self.data['Material ID'] == 3]
-        self.aqueous_source = (material_3['Total UO2++ [M]'] * material_3['Volume [m^3]'] * material_3['Porosity']).sum()
+        self.aqueous_source = (1000 * material_3['Total UO2++ [M]'] * material_3['Volume [m^3]'] * material_3['Porosity']).sum()
     
     def calculate_adsorbed(self):
         material_2 = self.data[self.data['Material ID'] == 2]
@@ -41,8 +42,8 @@ class TargetValueAnalysis:
         material_2 = self.data[self.data['Material ID'] == 2]
         material_3 = self.data[self.data['Material ID'] == 3]
         
-        self.mineral_bent = (material_2['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 38884.93558).sum()
-        self.mineral_sour = (material_3['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 38884.93558).sum()
+        self.mineral_bent = (material_2['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_2['Volume [m^3]'] * 2000).sum()
+        self.mineral_sour = (material_3['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 2000).sum()
 
     def calculate_aq_speciation(self):
         material_1 = self.data[self.data['Material ID'] == 1]
@@ -88,42 +89,33 @@ class TargetValueAnalysis:
         self.calcium_frac_conc = self.calcium_frac / self.mat1_vol
         self.carbonate_frac_conc = self.carbonate_frac / self.mat1_vol 
     
-    def calculate_efflux_aux(self, efflux_path):
-        with open(efflux_path, 'r') as f:
-            lines = f.readlines()
-            data = lines[0].split(',')
-            efflux_total_uo2_index = []
-            efflux_qlx_index = []
-            for i, item in enumerate(data):
-                if 'Total UO2++' in item:
-                    efflux_total_uo2_index.append(i)
-                elif 'qlx' in item:
-                    efflux_qlx_index.append(i)
-            result = [0]
-            for line in lines[1:]:
-                line_data = line.split()
-                efflux_total_uo2 = [float(line_data[i]) for i in efflux_total_uo2_index]
-                efflux_qlx = [float(line_data[i]) for i in efflux_qlx_index]
-                efflux = [5e-3 * efflux_total_uo2[i] * efflux_qlx[i] for i in range(len(efflux_total_uo2))]
-                efflux_sum = sum(efflux)            
-                result.append(efflux_sum+result[-1])
-            return result 
+    def calculate_inout(self, inout_path):
+                
+            # Read the CSV file into a DataFrame
+            inout_data = pd.read_csv(inout_path, delim_whitespace=True, header=None, skiprows=1)
+            # Read the first row of the file as a string
+            with open(inout_path, 'r') as file:
+                inout_header = file.readline().strip()
+            # Remove all double quotes from the header and split by commas
+            inout_header = inout_header.replace('"', '').split(',')
 
-    def calculate_efflux(self, efflux_path, efflux_csv_path):
-        
-        self.efflux_seq = None
+            # Assign the processed header to the DataFrame
+            inout_data.columns = inout_header
 
-        for file in glob.glob(efflux_path + '*.pft'):
-            efflux_single_file = self.calculate_efflux_aux(file)
 
-            if self.efflux_seq is None:
-                self.efflux_seq = efflux_single_file
-            else: 
-                self.efflux_seq = [a + b for a, b in zip(self.efflux_seq, efflux_single_file)]
+            # Ensure the required columns exist
+            if 'OUTLET UO2++ [mol]' in inout_data.columns and 'INLET UO2++ [mol]' in inout_data.columns:
+                # Calculate the result as the difference between inlet and outlet
+                inout_data['Result'] = -inout_data['INLET UO2++ [mol]'] - inout_data['OUTLET UO2++ [mol]']
 
-        self.efflux = self.efflux_seq[-1]                
-        self.efflux_seq_df = pd.DataFrame({'Efflux': self.efflux_seq})
-        self.efflux_seq_df.to_csv(efflux_csv_path, index=False)
+                # Sample every 100 rows from the result column
+                self.inout = pd.concat([pd.Series([0]), inout_data['Result'].iloc[99::100]], ignore_index=True)
+                self.inout = self.inout.to_frame(name='Effluxed UO2++')  # Ensure self.inout has a proper header
+            else:
+                raise ValueError("Required columns 'OUTLET UO2++ [mol]' and 'INLET UO2++ [mol]' are missing in the input file.")
+
+            self.target_values = pd.concat([self.target_values, self.inout], axis=1)  # Concatenate with proper header
+
             
     def save_target_values(self):
         target_values = pd.DataFrame({'Aqueous UO2++ in Granite': [self.aqueous_granite], 
@@ -174,18 +166,14 @@ class TargetValueAnalysis:
 if __name__ == '__main__':
 
     for j in range(1, 301):
-        if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_2400.0.csv'):
+        if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_10000.0.csv'):
             if not os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
             
                 tva = TargetValueAnalysis()
                 
                 target_csv_path = f'./src/TargetCalculation/output/sample_{j}/target_values.csv'
-                #efflux_path = f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{j}/sample_{j}-obs-'
-                #efflux_csv_path = f'./src/TargetCalculation/output/sample_{j}/efflux.csv'
-
-                #tva.calculate_efflux(efflux_path, efflux_csv_path)
-                #print(f'Efflux calculated for sample {j}')
-        
+                inout_path = f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{j}/sample_{j}-mas.dat'
+                
                 for i in range(0, 101):
     
                     file_path = f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_{i*100:.1f}.csv'
@@ -200,71 +188,34 @@ if __name__ == '__main__':
                     tva.calculate_ad_speciation()
                     tva.calculate_components()
                     tva.save_target_values()
-    
+                
+                tva.calculate_inout(inout_path)
                 tva.save_csv(target_csv_path)
     
     num = 0    
     target_df = pd.DataFrame()
-    efflux_df = pd.DataFrame()
     input_csv_path = f'./src/Sampling/output/lhs_sampled_data.csv'
     input_csv = pd.read_csv(input_csv_path, names=['x1', 'x2', 'x3', 'x4', 'x5'], header=None)
 
-    # plot x1, x2, and x3
-
-    for k in range(3):
-
-        merged_df = pd.DataFrame()
+    for j in range(1, 301):
         
-        for j in range(301):
+        target_csv_path = f'./src/TargetCalculation/output/sample_{j}/target_values.csv'
+        
+        if os.path.exists(target_csv_path):
+            target_data = pd.read_csv(target_csv_path)
             
-            target_csv_path = f'./src/TargetCalculation/output/sample_{j+1}/target_values.csv'
-
-            if os.path.exists(target_csv_path):
+            required_columns = ['Aqueous UO2++ in Granite', 'Aqueous UO2++ in Bentonite', 
+                                'Aqueous UO2++ in Source', 'Adsorbed UO2++ in Bentonite', 
+                                'Mineralized UO2++ in Source', 'Effluxed UO2++']
+            if all(col in target_data.columns for col in required_columns):
+                input_row = input_csv.iloc[j - 1]  # Get the j-th row from the input CSV
+                last_values = target_data[required_columns].iloc[-1]
                 
-                df = pd.read_csv(target_csv_path)
+                last_values = pd.concat([input_row, last_values], axis=0)
+                last_values = last_values.to_frame().T  # Transpose to make it a single row DataFrame
+                last_values.columns = ['x1', 'x2', 'x3', 'x4', 'x5'] + required_columns
 
-                if k == 0:
-                    df_last_row = df.iloc[-1, :2].to_frame().T
-                    df_last_row.index = [j]
-                    input_row = input_csv.iloc[j, :].to_frame().T
-                    input_row.index = [j]
-                    df_last_row = pd.concat([input_row, df_last_row], axis=1)
-                    target_df = pd.concat([target_df, df_last_row], axis=0)
+                target_df = pd.concat([target_df, last_values], ignore_index=True)
 
-                # Merge the k-th column into the merged_df
-                merged_column = df.iloc[:, k].to_frame()
-                merged_column.columns = [f'Sample_{j+1}_Col_{k}']
-                merged_df = pd.concat([merged_df, merged_column], axis=1)
-
-        # Save the merged dataframe to a CSV file
-        merged_df.to_csv(f'./src/TargetCalculation/output/merged_target_values_{k+1}.csv', index=False)
-
-    # plot x4
-    
-    # merged_df = pd.DataFrame()
-
-    # for j in range(301):
-
-    #     efflux_csv_path = f'/home/geofluids/research/sensitivity_3d/src/TargetCalculation/output/sample_{j+1}/efflux.csv'
-
-    #     if os.path.exists(efflux_csv_path):
-            
-    #         df = pd.read_csv(efflux_csv_path)
-    #         df_last_row = df.iloc[-1, :].to_frame().T
-    #         df_last_row.index = [j]
-    #         efflux_df = pd.concat([efflux_df, df_last_row], axis=0)
-    #         num += 1
-
-    #         merged_column = df.iloc[:, 0].to_frame()
-    #         merged_column.columns = [f'Sample_{j+1}_Col_3']
-    #         merged_df = pd.concat([merged_df, merged_column], axis=1)
-
-    # target_df = pd.concat([target_df, efflux_df], axis=1)
-
-    # print(f'Case loaded: {num}')
-
-    # merged_df.to_csv(f'./src/TargetCalculation/output/merged_target_values_4.csv', index=False)
-
-    # # make input-output pairs
-    # target_df.to_csv('./src/TargetCalculation/output/inout.csv', index=False)
-
+    output_csv_path = './src/TargetCalculation/output/inout.csv'
+    target_df.to_csv(output_csv_path, index=False)

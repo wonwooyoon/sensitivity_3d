@@ -24,7 +24,7 @@ def export_files():
         if not os.path.exists(new_sample_dir):
             os.makedirs(new_sample_dir)
 
-        for file_extension in ['*.h5', '*.xmf', '*.pft']:
+        for file_extension in ['*.h5', '*.xmf', '*.pft', '*.dat']:
             if file_extension == '*.h5':
                 for file_path in glob.glob(os.path.join(sample_dir, f'{sample_name}.h5')):
                     shutil.copy(file_path, new_sample_dir)
