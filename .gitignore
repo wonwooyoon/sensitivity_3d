@@ -5,6 +5,6 @@
 sample_*.h5
 mixing_*.h5
 mixing_*.out
-./src/RunPFLOTRAN/output/
-./src/RunPFLOTRAN/output_export/
-./src/TargetCalculation/output/
+./src/RunPFLOTRAN/output/*
+./src/RunPFLOTRAN/output_export/*
+./src/TargetCalculation/output/*
