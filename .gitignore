@@ -2,6 +2,7 @@
 *.out
 *.xmf
 *.pft
+sample*.dat
 sample_*.h5
 mixing_*.h5
 mixing_*.out

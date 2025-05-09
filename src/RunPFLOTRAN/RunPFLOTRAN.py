@@ -9,7 +9,7 @@ def run_pflotran_main():
         base_dir="$(pwd)"
         mkdir -p "${base_dir}/src/RunPFLOTRAN/output"
 
-        for i in {205..230}; do
+        for i in {201..250}; do
             infile="${base_dir}/src/RunPFLOTRAN/input/sample_${i}.in"
             mpirun -n 30 $PFLOTRAN_DIR/src/pflotran/pflotran -input_prefix "${infile%.*}"
             output_subdir="${base_dir}/src/RunPFLOTRAN/output/$(basename ${infile%.*})"
@@ -18,7 +18,7 @@ def run_pflotran_main():
             mv ${base_dir}/src/RunPFLOTRAN/input/*.xmf "${output_subdir}"
             mv ${base_dir}/src/RunPFLOTRAN/input/*.pft "${output_subdir}"
             mv ${base_dir}/src/RunPFLOTRAN/input/*.out "${output_subdir}"
-            mv ${base_dir}/src/RunPFLOTRAN/input/*.dat "${output_subdir}"
+            mv ${base_dir}/src/RunPFLOTRAN/input/sample*.dat "${output_subdir}"
             cp "${base_dir}/src/RunPFLOTRAN/input/sample_${i}.in" "${output_subdir}"
         done
         """
