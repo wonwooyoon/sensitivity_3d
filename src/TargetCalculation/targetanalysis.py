@@ -1,14 +1,11 @@
 import pandas as pd
-import glob
 import os
 from matplotlib import font_manager
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+from sklearn.preprocessing import MinMaxScaler
+import joblib
 
 font_manager.fontManager.addfont('/usr/share/fonts/truetype/msttcorefonts/Arial.ttf')
 font_manager.fontManager.addfont('/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf')
-plt.rcParams['font.family'] = 'Arial'
 
 class TargetValueAnalysis:
 
@@ -23,7 +20,6 @@ class TargetValueAnalysis:
         except FileNotFoundError:
             return 0
             
-
     def calculate_aqueous(self):
         material_1 = self.data[self.data['Material ID'] == 1]
         self.aqueous_granite = (1000 * material_1['Total UO2++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
@@ -101,7 +97,6 @@ class TargetValueAnalysis:
 
             # Assign the processed header to the DataFrame
             inout_data.columns = inout_header
-
 
             # Ensure the required columns exist
             if 'OUTLET UO2++ [mol]' in inout_data.columns and 'INLET UO2++ [mol]' in inout_data.columns:
@@ -217,5 +212,23 @@ if __name__ == '__main__':
 
                 target_df = pd.concat([target_df, last_values], ignore_index=True)
 
+    
+    # Filter rows where the sum of columns from the 6th to the last column is within the threshold
+    threshold = 241.500084
+    tolerance = 1e-5
+    target_df = target_df[target_df.iloc[:, 5:].sum(axis=1).sub(threshold).abs() <= tolerance]
+    
     output_csv_path = './src/TargetCalculation/output/inout.csv'
     target_df.to_csv(output_csv_path, index=False)
+
+    scaler = MinMaxScaler()
+
+    normalized_data = scaler.fit_transform(target_df)
+    normalized_df = pd.DataFrame(normalized_data, columns=target_df.columns)
+    normalized_output_csv_path = './src/TargetCalculation/output/normalized_inout.csv'
+    normalized_df.to_csv(normalized_output_csv_path, index=False)
+    scaler_path = './src/TargetCalculation/output/minmax_scaler.pkl'
+    joblib.dump(scaler, scaler_path)
+    
+    print("Scaler data min:", scaler.data_min_)
+    print("Scaler data max:", scaler.data_max_)
