@@ -160,7 +160,7 @@ class TargetValueAnalysis:
     
 if __name__ == '__main__':
 
-    for j in range(1, 301):
+    for j in range(1, 302):
         if os.path.exists(f'./src/TargetCalculation/output/sample_{j}/sample_{j}_time_10000.0.csv'):
             if not os.path.exists(f'./src/TargetCalculation/output/sample_{j}/target_values.csv'):
             
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     input_csv_path = f'./src/Sampling/output/lhs_sampled_data.csv'
     input_csv = pd.read_csv(input_csv_path, names=['x1', 'x2', 'x3', 'x4', 'x5'], header=None)
 
-    for j in range(1, 301):
+    for j in range(1, 302):
         
         target_csv_path = f'./src/TargetCalculation/output/sample_{j}/target_values.csv'
         
@@ -221,14 +221,3 @@ if __name__ == '__main__':
     output_csv_path = './src/TargetCalculation/output/inout.csv'
     target_df.to_csv(output_csv_path, index=False)
 
-    scaler = MinMaxScaler()
-
-    normalized_data = scaler.fit_transform(target_df)
-    normalized_df = pd.DataFrame(normalized_data, columns=target_df.columns)
-    normalized_output_csv_path = './src/TargetCalculation/output/normalized_inout.csv'
-    normalized_df.to_csv(normalized_output_csv_path, index=False)
-    scaler_path = './src/TargetCalculation/output/minmax_scaler.pkl'
-    joblib.dump(scaler, scaler_path)
-    
-    print("Scaler data min:", scaler.data_min_)
-    print("Scaler data max:", scaler.data_max_)

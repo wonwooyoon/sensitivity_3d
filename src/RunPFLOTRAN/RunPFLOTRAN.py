@@ -9,9 +9,9 @@ def run_pflotran_main():
         base_dir="$(pwd)"
         mkdir -p "${base_dir}/src/RunPFLOTRAN/output"
 
-        for i in {201..230}; do
+        for i in {207..230}; do
             infile="${base_dir}/src/RunPFLOTRAN/input/sample_${i}.in"
-            mpirun -n 30 $PFLOTRAN_DIR/src/pflotran/pflotran -input_prefix "${infile%.*}"
+            mpirun -n 36 $PFLOTRAN_DIR/src/pflotran/pflotran -input_prefix "${infile%.*}"
             output_subdir="${base_dir}/src/RunPFLOTRAN/output/$(basename ${infile%.*})"
             mkdir -p "${output_subdir}"
             mv ${base_dir}/src/RunPFLOTRAN/input/!(mesh).h5 "${output_subdir}"

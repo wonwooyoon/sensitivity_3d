@@ -61,7 +61,7 @@ class RatioEquilibrium:
 mkdir -p ./src/Mixing/output
 base_dir="$(pwd)"
 
-for i in {1..300}; do
+for i in {300..301}; do
   infile="${base_dir}/src/Mixing/output/mixing_${i}.in"
   echo "Running pflotran on $infile..."
   mpirun -n 1 /home/geofluids/pflotran/src/pflotran/pflotran -input_prefix "${infile%.*}"
@@ -116,6 +116,6 @@ if __name__ == '__main__':
 
     ratio_calculation.read_ratio()
     ratio_calculation.write_script()
-    # ratio_calculation.run_pflotran_ratio()
+    ratio_calculation.run_pflotran_ratio()
     ratio_calculation.read_pflotran_result(components)
 
