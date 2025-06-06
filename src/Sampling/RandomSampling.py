@@ -25,18 +25,18 @@ def lhs_sampling(num_samples, ranges, log_scale_vars, output_csv):
 
 
 if __name__ == "__main__":
-    num_samples = 300
+    num_samples = 30
     ranges = [
-        [1e-16, 1e-14],
-        [1300, 1900],
-        [501525, 503325],
-        [0.05, 1.0],
-        [0.0, 1.0]
+        [8e-15, 1e-14],
+        [1300, 1420],
+        [502965, 503325],
+        [0.05, 0.15],
+        [0.6, 1.0]
     ]
 
     # perm, density, pressure gradient, pyrite factor, mixing ratio
     log_scale_vars = [False, False, False, False, False]
 
-    output_csv = "./src/Sampling/output/lhs_sampled_data.csv"
+    output_csv = "./src/Sampling/output/lhs_sampled_data_focused.csv"
     lhs_sampling(num_samples, ranges, log_scale_vars, output_csv)
 

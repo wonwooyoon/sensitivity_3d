@@ -65,5 +65,3 @@ aq_uo2_source.to_csv('./src/TargetCalculation/output/aq_uo2_source.csv', index=F
 aq_uo2_bentonite_adsorbed.to_csv('./src/TargetCalculation/output/aq_uo2_bentonite_adsorbed.csv', index=False)
 aq_uo2_source_mineralized.to_csv('./src/TargetCalculation/output/aq_uo2_source_mineralized.csv', index=False)
 aq_uo2_effluxed.to_csv('./src/TargetCalculation/output/aq_uo2_effluxed.csv', index=False)
-
-

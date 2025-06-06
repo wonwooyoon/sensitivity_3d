@@ -13,7 +13,7 @@ NUMERICAL_METHODS transport
   NEWTON_SOLVER
     STOL 1e-50
     ATOL 1e-50
-    RTOL 5e-7
+    RTOL 1e-7
     ITOL_UPDATE 1e-14
     MAXIMUM_NUMBER_OF_ITERATIONS 50
   /
@@ -117,25 +117,25 @@ CHEMISTRY
       RATE_CONSTANT   0.0 mol/m^2-sec
     /
     Quartz
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /
     Gypsum
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /   
     Calcite
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /
     Pyrite
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     / 
     Dolomite
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /   
     Siderite
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /
     UO2:2H2O(am)
-      RATE_CONSTANT		1.d-6 mol/m^2-sec
+      RATE_CONSTANT		1.d-9 mol/m^2-sec
     /
   /
   
