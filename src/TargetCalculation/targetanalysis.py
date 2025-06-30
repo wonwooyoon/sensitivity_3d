@@ -16,6 +16,16 @@ class TargetValueAnalysis:
     def read_path(self, file_path):
         try:
             self.data = pd.read_csv(file_path)
+            self.target_1 = self.data[
+                (self.data['XC'].sub(-6.75).abs() <= 1e-3) &
+                (self.data['YC'].sub(-1.25).abs() <= 1e-3) &
+                (self.data['ZC'].sub(0.00).abs() <= 1e-3)
+            ]
+            self.target_2 = self.data[
+                (self.data['XC'].sub(-6.25).abs() <= 1e-3) &
+                (self.data['YC'].sub(-1.25).abs() <= 1e-3) &
+                (self.data['ZC'].sub(0.00).abs() <= 1e-3)
+            ]
             return 1
         except FileNotFoundError:
             return 0
@@ -29,6 +39,10 @@ class TargetValueAnalysis:
 
         material_3 = self.data[self.data['Material ID'] == 3]
         self.aqueous_source = (1000 * material_3['Total UO2++ [M]'] * material_3['Volume [m^3]'] * material_3['Porosity']).sum()
+
+        # Extract row where XC = -6.75, YC = -1.25, ZC = 0
+        self.pH = self.target_1['pH'].values[0]
+        self.pe = self.target_1['pe'].values[0]
     
     def calculate_adsorbed(self):
         material_2 = self.data[self.data['Material ID'] == 2]
@@ -42,74 +56,105 @@ class TargetValueAnalysis:
         self.mineral_sour = (material_3['UO2:2H2O(am) VF [m^3 mnrl_m^3 bulk]'] * material_3['Volume [m^3]'] * 2000).sum()
 
     def calculate_aq_speciation(self):
-        material_1 = self.data[self.data['Material ID'] == 1]
-        material_2 = self.data[self.data['Material ID'] == 2]
         
-        self.m1_a1 = (material_1['Ca2UO2(CO3)3 [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.m1_a2 = (material_1['CaUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.m1_a3 = (material_1['UO2(CO3)3---- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.m1_a4 = (material_1['MgUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.m1_a5 = (material_1['UO2(CO3)2-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        self.m1_a1 = self.target_1['Ca2UO2(CO3)3 [M]'].values[0]
+        self.m1_a2 = self.target_1['CaUO2(CO3)3-- [M]'].values[0]
+        self.m1_a3 = self.target_1['UO2(CO3)3---- [M]'].values[0]
+        self.m1_a4 = self.target_1['MgUO2(CO3)3-- [M]'].values[0]
+        self.m1_a5 = self.target_1['UO2(CO3)2-- [M]'].values[0]
+        self.m2_a1 = self.target_1['Ca2UO2(CO3)3 [M]'].values[0]
+        self.m2_a2 = self.target_1['CaUO2(CO3)3-- [M]'].values[0]
+        self.m2_a3 = self.target_1['UO2(CO3)3---- [M]'].values[0]
+        self.m2_a4 = self.target_1['MgUO2(CO3)3-- [M]'].values[0]
+        self.m2_a5 = self.target_1['UO2(CO3)2-- [M]'].values[0]
+        
+        # material_1 = self.data[self.data['Material ID'] == 1]
+        # material_2 = self.data[self.data['Material ID'] == 2]
+        
+        # self.m1_a1 = (material_1['Ca2UO2(CO3)3 [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.m1_a2 = (material_1['CaUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.m1_a3 = (material_1['UO2(CO3)3---- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.m1_a4 = (material_1['MgUO2(CO3)3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.m1_a5 = (material_1['UO2(CO3)2-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
 
-        self.m2_a1 = (material_2['Ca2UO2(CO3)3 [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.m2_a2 = (material_2['CaUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.m2_a3 = (material_2['UO2(CO3)3---- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.m2_a4 = (material_2['MgUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.m2_a5 = (material_2['UO2(CO3)2-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.m2_a1 = (material_2['Ca2UO2(CO3)3 [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.m2_a2 = (material_2['CaUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.m2_a3 = (material_2['UO2(CO3)3---- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.m2_a4 = (material_2['MgUO2(CO3)3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.m2_a5 = (material_2['UO2(CO3)2-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
 
 
     def calculate_ad_speciation(self):
-        material_2 = self.data[self.data['Material ID'] == 2]
-        self.m2_s1 = (material_2['>SOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_s2 = (material_2['>SOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_s3 = (material_2['>SOUO2(OH)2- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_s4 = (material_2['>SOUO2(OH)3-- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_s5 = (material_2['>SOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_s6 = (material_2['>SOUO2(CO3)2--- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_w1 = (material_2['>WOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_w2 = (material_2['>WOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
-        self.m2_w3 = (material_2['>WOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        
+        self.m2_s1 = self.target_1['>SOUO2+ [mol_m^3 bulk]'].values[0]
+        self.m2_s2 = self.target_1['>SOUO2OH [mol_m^3 bulk]'].values[0]
+        self.m2_s3 = self.target_1['>SOUO2(OH)2- [mol_m^3 bulk]'].values[0]
+        self.m2_s4 = self.target_1['>SOUO2(OH)3-- [mol_m^3 bulk]'].values[0]
+        self.m2_s5 = self.target_1['>SOUO2CO3- [mol_m^3 bulk]'].values[0]
+        self.m2_s6 = self.target_1['>SOUO2(CO3)2--- [mol_m^3 bulk]'].values[0]
+        self.m2_w1 = self.target_1['>WOUO2+ [mol_m^3 bulk]'].values[0]
+        self.m2_w2 = self.target_1['>WOUO2OH [mol_m^3 bulk]'].values[0]
+        self.m2_w3 = self.target_1['>WOUO2CO3- [mol_m^3 bulk]'].values[0]
+
+        # material_2 = self.data[self.data['Material ID'] == 2]
+        # self.m2_s1 = (material_2['>SOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_s2 = (material_2['>SOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_s3 = (material_2['>SOUO2(OH)2- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_s4 = (material_2['>SOUO2(OH)3-- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_s5 = (material_2['>SOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_s6 = (material_2['>SOUO2(CO3)2--- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_w1 = (material_2['>WOUO2+ [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_w2 = (material_2['>WOUO2OH [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
+        # self.m2_w3 = (material_2['>WOUO2CO3- [mol_m^3 bulk]'] * material_2['Volume [m^3]']).sum()
 
     def calculate_components(self):
-        material_2 = self.data[self.data['Material ID'] == 2]
-        self.calcium = (material_2['Total Ca++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.carbonate = (material_2['Total CO3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.mat2_vol = (material_2['Volume [m^3]'] * material_2['Porosity']).sum()
-        self.calcium_conc = self.calcium / self.mat2_vol
-        self.carbonate_conc = self.carbonate / self.mat2_vol
+        
+        self.calcium = self.target_1['Total Ca++ [M]'].values[0]
+        self.carbonate = self.target_1['Total CO3-- [M]'].values[0]
+        self.aq_U = self.target_1['Total UO2++ [M]'].values[0]
+        self.ad_U = self.target_1['Total Sorbed UO2++ [mol_m^3]'].values[0]
+        self.aq_U_src = self.target_2['Total UO2++ [M]'].values[0]
+        self.ad_U_src = self.target_2['Total Sorbed UO2++ [mol_m^3]'].values[0]
 
-        material_1 = self.data[self.data['Material ID'] == 1]
-        self.calcium_frac = (material_1['Total Ca++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.carbonate_frac = (material_1['Total CO3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.mat1_vol = (material_1['Volume [m^3]'] * material_1['Porosity']).sum()
-        self.calcium_frac_conc = self.calcium_frac / self.mat1_vol
-        self.carbonate_frac_conc = self.carbonate_frac / self.mat1_vol 
+        # material_2 = self.data[self.data['Material ID'] == 2]
+        # self.calcium = (material_2['Total Ca++ [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.carbonate = (material_2['Total CO3-- [M]'] * material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.mat2_vol = (material_2['Volume [m^3]'] * material_2['Porosity']).sum()
+        # self.calcium_conc = self.calcium / self.mat2_vol
+        # self.carbonate_conc = self.carbonate / self.mat2_vol
+
+        # material_1 = self.data[self.data['Material ID'] == 1]
+        # self.calcium_frac = (material_1['Total Ca++ [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.carbonate_frac = (material_1['Total CO3-- [M]'] * material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.mat1_vol = (material_1['Volume [m^3]'] * material_1['Porosity']).sum()
+        # self.calcium_frac_conc = self.calcium_frac / self.mat1_vol
+        # self.carbonate_frac_conc = self.carbonate_frac / self.mat1_vol 
     
     def calculate_inout(self, inout_path):
                 
-            # Read the CSV file into a DataFrame
-            inout_data = pd.read_csv(inout_path, delim_whitespace=True, header=None, skiprows=1)
-            # Read the first row of the file as a string
-            with open(inout_path, 'r') as file:
-                inout_header = file.readline().strip()
+        # Read the CSV file into a DataFrame
+        inout_data = pd.read_csv(inout_path, delim_whitespace=True, header=None, skiprows=1)
+        # Read the first row of the file as a string
+        with open(inout_path, 'r') as file:
+            inout_header = file.readline().strip()
             # Remove all double quotes from the header and split by commas
-            inout_header = inout_header.replace('"', '').split(',')
+        inout_header = inout_header.replace('"', '').split(',')
 
             # Assign the processed header to the DataFrame
-            inout_data.columns = inout_header
+        inout_data.columns = inout_header
 
             # Ensure the required columns exist
-            if 'OUTLET UO2++ [mol]' in inout_data.columns and 'INLET UO2++ [mol]' in inout_data.columns:
-                # Calculate the result as the difference between inlet and outlet
-                inout_data['Result'] = -inout_data['INLET UO2++ [mol]'] - inout_data['OUTLET UO2++ [mol]']
+        if 'OUTLET UO2++ [mol]' in inout_data.columns and 'INLET UO2++ [mol]' in inout_data.columns:
+            # Calculate the result as the difference between inlet and outlet
+            inout_data['Result'] = -inout_data['INLET UO2++ [mol]'] - inout_data['OUTLET UO2++ [mol]']
 
-                # Sample every 100 rows from the result column
-                self.inout = pd.concat([pd.Series([0]), inout_data['Result'].iloc[99::100]], ignore_index=True)
-                self.inout = self.inout.to_frame(name='Effluxed UO2++')  # Ensure self.inout has a proper header
-            else:
-                raise ValueError("Required columns 'OUTLET UO2++ [mol]' and 'INLET UO2++ [mol]' are missing in the input file.")
+            # Sample every 100 rows from the result column
+            self.inout = pd.concat([pd.Series([0]), inout_data['Result'].iloc[99::100]], ignore_index=True)
+            self.inout = self.inout.to_frame(name='Effluxed UO2++')  # Ensure self.inout has a proper header
+        else:
+            raise ValueError("Required columns 'OUTLET UO2++ [mol]' and 'INLET UO2++ [mol]' are missing in the input file.")
 
-            self.target_values = pd.concat([self.target_values, self.inout], axis=1)  # Concatenate with proper header
+        self.target_values = pd.concat([self.target_values, self.inout], axis=1)  # Concatenate with proper header
 
             
     def save_target_values(self):
@@ -140,12 +185,12 @@ class TargetValueAnalysis:
                                       'm2_w3': [self.m2_w3],
                                       'Calcium': [self.calcium],
                                       'Carbonate': [self.carbonate],
-                                      'Calcium_frac': [self.calcium_frac],
-                                      'Carbonate_frac': [self.carbonate_frac],
-                                      'Calcium_conc': [self.calcium_conc],
-                                      'Carbonate_conc': [self.carbonate_conc],
-                                      'Calcium_frac_conc': [self.calcium_frac_conc],
-                                      'Carbonate_frac_conc': [self.carbonate_frac_conc],
+                                      'Aqueous UO2++ at obsv': [self.aq_U],
+                                      'Adsorbed UO2++ at obsv': [self.ad_U],
+                                      'Aqueous UO2++ in Source at obsv': [self.aq_U_src],
+                                      'Adsorbed UO2++ in Source at obsv': [self.ad_U_src],
+                                      'pH': [self.pH],
+                                      'pe': [self.pe]
                                       })
         
         if not hasattr(self, 'target_values'):
@@ -216,6 +261,8 @@ if __name__ == '__main__':
     # Filter rows where the sum of columns from the 6th to the last column is within the threshold
     threshold = 241.500084
     tolerance = 1e-5
+    
+    print(target_df[target_df.iloc[:, 5:].sum(axis=1).sub(threshold).abs() > tolerance])
     target_df = target_df[target_df.iloc[:, 5:].sum(axis=1).sub(threshold).abs() <= tolerance]
     
     output_csv_path = './src/TargetCalculation/output/inout.csv'

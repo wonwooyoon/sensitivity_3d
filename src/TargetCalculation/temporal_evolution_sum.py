@@ -18,7 +18,7 @@ bentonite_adsorbed_list = []
 source_mineralized_list = []
 effluxed_list = []
 
-for i in range(1, 302):
+for i in range(1, 340):
     target_csv_path = f'./src/TargetCalculation/output/sample_{i}/target_values.csv'
     col_name = f'data_{i}'
 

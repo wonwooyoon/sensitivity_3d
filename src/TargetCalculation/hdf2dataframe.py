@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
 ###########################################################################################
     # # read every sample file in ./src/RunPFLOTRAN/output/sample_*/sample_*.h5
-    for i in range(1, 302):
+    for i in range(1, 380):
         
         if os.path.exists(f'/mnt/d/WWY/Personal/0. Paperwork/3. ML_sensitivity_analysis/Model/output_export/sample_{i}'):
             if not os.path.exists(f'./src/TargetCalculation/output/sample_{i}'):

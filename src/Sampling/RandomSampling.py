@@ -25,12 +25,12 @@ def lhs_sampling(num_samples, ranges, log_scale_vars, output_csv):
 
 
 if __name__ == "__main__":
-    num_samples = 30
+    num_samples = 50
     ranges = [
         [8e-15, 1e-14],
         [1300, 1420],
         [502965, 503325],
-        [0.05, 0.15],
+        [0.05, 0.10],
         [0.6, 1.0]
     ]
 
