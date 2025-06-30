@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import optuna
 import numpy as np
+import math
 
 # Define the DNN model
 class DNNModel(nn.Module):
@@ -23,6 +24,32 @@ class DNNModel(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+class CappedCosineAnnealingWarmRestarts(optim.lr_scheduler._LRScheduler):
+    def __init__(self, optimizer, T_0, T_max, T_mult=1, eta_min=0, last_epoch=-1):
+        self.T_0 = T_0
+        self.T_max = T_max
+        self.T_mult = T_mult
+        self.eta_min = eta_min
+
+        self.T_i = T_0
+        self.last_restart = 0
+
+        super().__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        t = self.last_epoch - self.last_restart
+        if t >= self.T_i:
+            self.last_restart = self.last_epoch
+            self.T_i = min(self.T_i * self.T_mult, self.T_max)
+            t = 0
+            print(f"Restarting at epoch {self.last_epoch}, T_i={self.T_i}")
+        
+        return [
+            self.eta_min + (base_lr - self.eta_min) * (1 + math.cos(math.pi * t / self.T_i)) / 2
+            for base_lr in self.base_lrs
+        ]
+
+        
 def weights_init(m):
     if isinstance(m, nn.Linear):
         nn.init.xavier_normal_(m.weight)
@@ -137,7 +164,7 @@ for alpha, beta in zip(alpha_set, beta_set):
         model = DNNModel(input_dim, output_dim, num_layers, hidden_neurons, dropout_rate).to(device)
         model.apply(weights_init)
         optimizer = optim.AdamW(model.parameters(), lr=initial_lr, weight_decay=l2_reg)
-        scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=2, eta_min=1e-8)
+        scheduler = CappedCosineAnnealingWarmRestarts(optimizer, T_0=10, T_max=5120, T_mult=2, eta_min=1e-8)
         best_val_loss = float('inf')
         
         num_restarts_without_improvement = 0
@@ -163,19 +190,19 @@ for alpha, beta in zip(alpha_set, beta_set):
                 val_predictions = model(X_val)
                 val_loss = alpha * criterion_1(val_predictions, y_val) + beta * criterion_2(val_predictions, y_val, device)
 
-            scheduler.step(epoch+1)
-
+            scheduler.step()
+            
             if val_loss.item() < best_val_loss:
                 best_val_loss = val_loss.item()
                 num_restarts_without_improvement = 0
+                print(f"Epoch {epoch + 1}, Best Val Loss: {best_val_loss:.4e}")
             
             if epoch + 1 == next_restart_epoch:
                 num_restarts_without_improvement += 1
                 if num_restarts_without_improvement >= 2:
                     print(f"Early stopping at epoch {epoch + 1}")
                     break
-                current_T_i *= T_mult
-                next_restart_epoch += current_T_i
+                next_restart_epoch += scheduler.T_i
 
         return best_val_loss
 
@@ -188,7 +215,7 @@ for alpha, beta in zip(alpha_set, beta_set):
     model = DNNModel(input_dim, output_dim, best_params['num_layers'], best_params['hidden_neurons'], dropout_rate).to(device)
     model.apply(weights_init)
     optimizer = optim.AdamW(model.parameters(), lr= 1e-4, weight_decay=best_params['l2_reg'])
-    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=2, eta_min=1e-8)
+    scheduler = CappedCosineAnnealingWarmRestarts(optimizer, T_0=10, T_max=5120, T_mult=2, eta_min=1e-8)
     best_val_loss = float('inf')
     endured = 0
     output_dir = f'./src/PINN/output/alpha_{alpha}_beta_{beta}_optuna'
@@ -228,7 +255,7 @@ for alpha, beta in zip(alpha_set, beta_set):
             test_c1 = criterion_1(test_pred, y_test).item()
             test_c2 = criterion_2(test_pred, y_test, device).item()
 
-        scheduler.step(epoch + 1)
+        scheduler.step()
 
         if val_loss.item() < best_val_loss:
             best_val_loss = val_loss.item()
@@ -250,8 +277,7 @@ for alpha, beta in zip(alpha_set, beta_set):
             if num_restarts_without_improvement >= 2:
                 print(f"Early stopping at epoch {epoch + 1}")
                 break
-            current_T_i *= T_mult
-            next_restart_epoch += current_T_i
+            next_restart_epoch += scheduler.T_i
         
     print(f"Best validation loss: {best_val_loss:.4e}")
     pd.DataFrame([best_params]).to_csv(os.path.join(output_dir, 'PINN_hyperparameters.csv'), index=False)
